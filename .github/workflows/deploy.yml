@@ -16,10 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set on QEMU
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set on Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
@@ -31,7 +31,7 @@ jobs:
 
       - name: Set lowercase repository name
         id: repo
-        run: echo "repo=$(echo '${{ github.repository }}' | tr '[:upper]' '[:lower]')" >> $GITHUB_OUTPUT
+        run: echo "repo=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
       - name: Extract metadata
         id: meta
@@ -41,7 +41,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
-            
+
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
@@ -57,15 +57,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Send deploy request
         run: |
           HTTP_CODE=$(curl -s -o response.txt -w "%{http_code}" -X POST \
             -H "Content-Type: application/json" \
             -H "X-API-Key: ${{ secrets.LMS_API_KEY }}" \
             -d '{"image":"ghcr.io/${{ needs.build.outputs.repo }}:${{ github.sha }}","repository":"${{ github.repository }}"}' \
-              https://lms.python-labs.ru/api/deploy-requests)
-          
+            https://lms.python-labs.ru/api/deploy-requests)
+
           if [ "$HTTP_CODE" != "200" ]; then
             echo "Deployment failed with status code $HTTP_CODE"
             echo "Response body:"
