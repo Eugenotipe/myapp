@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkoput@v4
+        uses: actions/checkout@v4
 
       - name: Set on QEMU
         uses: docker/setup-qemu-action@v3
